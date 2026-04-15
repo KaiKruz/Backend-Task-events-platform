@@ -1,54 +1,54 @@
-# OS
-.DS_Store
-Thumbs.db
-Desktop.ini
-
-# Editor
-.vscode/
-.idea/
-
-# Secrets
-.env
-.env.*
-*.pem
-*.key
-credentials*.json
-secrets*.json
-
-# Logs
-*.log
-logs/
-
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-dist/
-build/
-out/
-.next/
-.nuxt/
-coverage/
-
 # Python
-.venv/
-venv/
 __pycache__/
 *.py[cod]
-*.pyo
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Testing / coverage
 .pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.cache/
+
+# Type / lint / tooling
 .mypy_cache/
 .ruff_cache/
 
-# .NET
-bin/
-obj/
-*.user
-*.suo
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
 
-# Java
-target/
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
 
+# Logs
+*.log
 
+# Node (if ever used for docs/tools)
+node_modules/
+
+# Keep project rules/config tracked
+!.cursor/
+!.cursor/rules/
+!.codex/
