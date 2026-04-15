@@ -3,7 +3,7 @@
 A submission-quality Django REST API for an events platform with email OTP verification, JWT auth, role-based access control, event discovery, and enrollments.
 
 ## Status
-Phase 1 scaffold complete (Django + DRF + SimpleJWT + Postgres-ready settings).
+Phase 2 auth + OTP implemented (signup, verify-email, JWT login/refresh) on Django’s default `User` with `AccountProfile` + `EmailOTP`.
 
 ## Local setup (Windows / PowerShell)
 
@@ -40,6 +40,13 @@ ruff check .
 Health endpoint:
 
 - `GET /api/health/` → `200 { "status": "ok" }`
+
+Auth endpoints (JSON):
+
+- `POST /api/auth/signup/` — body: `email`, `password`, `role` (`seeker` | `facilitator`) → `201` with `email`, `role`; sends a 6-digit OTP email (console backend by default)
+- `POST /api/auth/verify-email/` — body: `email`, `otp` → `200` when verified
+- `POST /api/auth/login/` — body: `email`, `password` → `200` with `access`, `refresh` (requires verified email)
+- `POST /api/auth/refresh/` — body: `refresh` → `200` with a new `access` token (SimpleJWT refresh flow)
 
 ## Assignment goals
 Build a backend that supports:
