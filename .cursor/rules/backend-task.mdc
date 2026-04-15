@@ -1,0 +1,23 @@
+---
+description: Django events backend assignment guardrails
+globs: **/*
+alwaysApply: true
+---
+
+Read SPEC.md and AGENTS.md before doing any work.
+
+Never:
+- swap Django's User model
+- add username to signup request
+- allow unverified login
+- skip role checks
+- skip ownership checks
+- skip tests
+- change API behavior without updating README/Postman
+
+Always:
+- plan first
+- list files to edit before editing
+- implement one phase at a time
+- run migrations, tests, and lint after each phase
+- verify pagination and error envelope against SPEC.md

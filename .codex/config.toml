@@ -1,0 +1,11 @@
+model = "gpt-5"
+reasoning_effort = "high"
+
+[projects."C:\\OCA\\Backend Task"]
+trust_level = "trusted"
+
+# Note:
+# OpenAI recommends keeping global defaults in ~/.codex/config.toml and putting
+# repo-specific behavior in .codex/config.toml. Keep approvals and sandboxing
+# tight by default until the repo is set up cleanly.
+
