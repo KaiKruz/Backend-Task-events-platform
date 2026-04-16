@@ -3,12 +3,27 @@
 A submission-quality Django REST API for an events platform with email OTP verification, JWT auth, role-based access control, event discovery, and enrollments.
 
 ## Status
-Phases 1–3 are implemented:
+Phases 1–4 are complete and implemented:
 
 - **Phase 2:** Auth + OTP (signup, verify-email, JWT login/refresh) on Django’s default `User` with `AccountProfile` + `EmailOTP`.
 - **Phase 3:** `Event` and `Enrollment` models, including a **database-level unique constraint** so a seeker can have only one **active** (`enrolled`) row per event. Model and service behavior (validation, enrollment, capacity, cancellation) is covered by tests under `tests/test_events.py` (pytest).
+- **Phase 4:** Seeker-facing event discovery and enrollment HTTP APIs (see below). Covered by `tests/test_seeker_api.py`.
 
-API endpoints for events and enrollments are planned for Phase 4+; this phase delivers the data layer and service logic tested in isolation.
+### Seeker / public events API (Phase 4)
+
+Public (no auth):
+
+- `GET /api/events/` — paginated list (`count`, `next`, `previous`, `results`). Default ordering: **not-yet-started events first**, then by `starts_at` ascending. Query params: `location`, `language` (case-insensitive **exact** match on the full stored value—same semantics as Django `iexact`, not substring), `starts_after`, `starts_before` (ISO datetimes), `q` (substring match on title or description), optional `ordering`, `page`, `page_size`.
+- `GET /api/events/{id}/` — event detail.
+
+Verified seeker only (JWT `Authorization: Bearer <access>`; `seeker` role; email verified):
+
+- `POST /api/events/{id}/enroll/` — enroll in an event (delegates to `enroll_seeker`). Facilitators and unverified users are rejected.
+- `GET /api/me/enrollments/upcoming/` — active (`enrolled`) enrollments whose event `starts_at` is **≥ now** (UTC).
+- `GET /api/me/enrollments/past/` — active enrollments whose event `starts_at` is **< now** (UTC).
+- `POST /api/me/enrollments/{id}/cancel/` — cancel own enrollment (delegates to `cancel_enrollment`).
+
+Postman: `postman/EventsPlatform.postman_collection.json` (collection variables: `base_url`, `access_token`, `refresh_token`, `event_id`, `enrollment_id`).
 
 ## Local setup (Windows / PowerShell)
 
@@ -31,6 +46,7 @@ Environment variables:
 
 - Copy `.env.example` to `.env` and adjust values for your machine.
 - `DATABASE_URL` should point at PostgreSQL for real usage.
+- `DJANGO_SECRET_KEY` should be a long random string in development and automated tests; very short placeholder values can trigger Django’s security warnings about `SECRET_KEY`.
 
 Run (validation / local CI-style checks):
 

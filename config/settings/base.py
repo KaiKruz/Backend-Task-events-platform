@@ -8,8 +8,8 @@ import environ
 BASE_DIR = Path(__file__).resolve().parents[2]
 
 env = environ.Env(
-    DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, []),
+    DJANGO_DEBUG=(bool, False),
+    DJANGO_ALLOWED_HOSTS=(list, []),
     PAGE_SIZE=(int, 20),
     ACCESS_TOKEN_LIFETIME_MINUTES=(int, 15),
     REFRESH_TOKEN_LIFETIME_DAYS=(int, 7),
@@ -22,13 +22,18 @@ env = environ.Env(
 environ.Env.read_env(BASE_DIR / ".env")
 
 
-SECRET_KEY = env("DJANGO_SECRET_KEY", default="change-me")
-DEBUG = env("DJANGO_DEBUG", default=False)
+SECRET_KEY = env(
+    "DJANGO_SECRET_KEY",
+    default="change-me-to-a-long-random-secret",
+)
+DEBUG = env.bool("DJANGO_DEBUG", default=False)
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=[])
+
 
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@example.com")
 EMAIL_BACKEND = env(
-    "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.console.EmailBackend",
 )
 EMAIL_HOST = env("EMAIL_HOST", default="")
 EMAIL_PORT = env.int("EMAIL_PORT", default=0)
@@ -132,7 +137,12 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=env.int("ACCESS_TOKEN_LIFETIME_MINUTES")),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=env.int("REFRESH_TOKEN_LIFETIME_DAYS")),
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        minutes=env.int("ACCESS_TOKEN_LIFETIME_MINUTES", default=15)
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        days=env.int("REFRESH_TOKEN_LIFETIME_DAYS", default=7)
+    ),
+    "SIGNING_KEY": env("JWT_SIGNING_KEY", default=SECRET_KEY),
 }
 
