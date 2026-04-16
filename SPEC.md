@@ -1,27 +1,27 @@
 # Assignment Spec
 
 ## Core requirements
-- [ ] Django backend for events platform
-- [ ] Default Django User model only
-- [ ] Signup accepts email, password, role
-- [ ] No username field in signup request
-- [ ] Email OTP verification before login
-- [ ] OTP expiry and attempt limits
-- [ ] JWT login and refresh
-- [ ] Roles: seeker, facilitator
-- [ ] Role and ownership enforcement
-- [ ] Event model
-- [ ] Enrollment model
-- [ ] Filtered event search
-- [ ] Seeker enroll in event
-- [ ] Past enrollments
-- [ ] Upcoming enrollments
-- [ ] Facilitator CRUD for own events
-- [ ] Facilitator list my events with counts
-- [ ] PostgreSQL migrations
-- [ ] Useful DB indexes
-- [ ] README
-- [ ] Postman collection
+- [x] Django backend for events platform
+- [x] Default Django User model only
+- [x] Signup accepts email, password, role
+- [x] No username field in signup request
+- [x] Email OTP verification before login
+- [x] OTP expiry and attempt limits
+- [x] JWT login and refresh
+- [x] Roles: seeker, facilitator
+- [x] Role and ownership enforcement
+- [x] Event model
+- [x] Enrollment model
+- [x] Filtered event search
+- [x] Seeker enroll in event
+- [x] Past enrollments
+- [x] Upcoming enrollments
+- [x] Facilitator CRUD for own events
+- [x] Facilitator list my events with counts
+- [x] PostgreSQL migrations
+- [x] Useful DB indexes
+- [x] README
+- [x] Postman collection
 
 ## Bonus
 - [ ] Dockerized project
@@ -31,8 +31,8 @@
 - [ ] Public deployment URL
 
 ## Acceptance checks
-- [ ] Unverified users cannot log in
-- [ ] Duplicate active enrollment blocked
-- [ ] Capacity enforced
-- [ ] Pagination shape is count/next/previous/results
-- [ ] Error shape is detail/code
+- [x] Unverified users cannot log in
+- [x] Duplicate active enrollment blocked
+- [x] Capacity enforced
+- [x] Pagination shape is count/next/previous/results
+- [x] Error shape is detail/code

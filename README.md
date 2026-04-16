@@ -3,11 +3,12 @@
 A submission-quality Django REST API for an events platform with email OTP verification, JWT auth, role-based access control, event discovery, and enrollments.
 
 ## Status
-Phases 1–4 are complete and implemented:
+Phases 1–5 are complete and implemented:
 
 - **Phase 2:** Auth + OTP (signup, verify-email, JWT login/refresh) on Django’s default `User` with `AccountProfile` + `EmailOTP`.
 - **Phase 3:** `Event` and `Enrollment` models, including a **database-level unique constraint** so a seeker can have only one **active** (`enrolled`) row per event. Model and service behavior (validation, enrollment, capacity, cancellation) is covered by tests under `tests/test_events.py` (pytest).
 - **Phase 4:** Seeker-facing event discovery and enrollment HTTP APIs (see below). Covered by `tests/test_seeker_api.py`.
+- **Phase 5:** Facilitator event management APIs (create/list/detail/update/delete/my-summary) with verified facilitator gating, ownership enforcement, and service-backed validation/error handling. Covered by `tests/test_facilitator_api.py`.
 
 ### Seeker / public events API (Phase 4)
 
@@ -22,6 +23,15 @@ Verified seeker only (JWT `Authorization: Bearer <access>`; `seeker` role; email
 - `GET /api/me/enrollments/upcoming/` — active (`enrolled`) enrollments whose event `starts_at` is **≥ now** (UTC).
 - `GET /api/me/enrollments/past/` — active enrollments whose event `starts_at` is **< now** (UTC).
 - `POST /api/me/enrollments/{id}/cancel/` — cancel own enrollment (delegates to `cancel_enrollment`).
+
+Verified facilitator only (JWT `Authorization: Bearer <access>`; `facilitator` role; email verified):
+
+- `POST /api/facilitator/events/` — create an event owned by the authenticated facilitator.
+- `GET /api/facilitator/events/` — list only events created by the authenticated facilitator.
+- `GET /api/facilitator/events/{id}/` — retrieve own event only.
+- `PATCH /api/facilitator/events/{id}/` — partially update own event only.
+- `DELETE /api/facilitator/events/{id}/` — delete own event only.
+- `GET /api/facilitator/events/my-summary/` — per owned event: `total_active_enrollments` (status=`enrolled` only) and `available_seats` (`null` when capacity is unlimited).
 
 Postman: `postman/EventsPlatform.postman_collection.json` (collection variables: `base_url`, `access_token`, `refresh_token`, `event_id`, `enrollment_id`).
 

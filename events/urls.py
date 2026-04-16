@@ -6,6 +6,9 @@ from events.views import (
     EventDetailView,
     EventEnrollView,
     EventListView,
+    FacilitatorEventDetailView,
+    FacilitatorEventListCreateView,
+    FacilitatorMySummaryView,
     SeekerEnrollmentCancelView,
     SeekerEnrollmentPastListView,
     SeekerEnrollmentUpcomingListView,
@@ -29,5 +32,20 @@ urlpatterns = [
         "me/enrollments/<int:pk>/cancel/",
         SeekerEnrollmentCancelView.as_view(),
         name="seeker-enrollment-cancel",
+    ),
+    path(
+        "facilitator/events/",
+        FacilitatorEventListCreateView.as_view(),
+        name="facilitator-event-list-create",
+    ),
+    path(
+        "facilitator/events/my-summary/",
+        FacilitatorMySummaryView.as_view(),
+        name="facilitator-event-my-summary",
+    ),
+    path(
+        "facilitator/events/<int:pk>/",
+        FacilitatorEventDetailView.as_view(),
+        name="facilitator-event-detail",
     ),
 ]

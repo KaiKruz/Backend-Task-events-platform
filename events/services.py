@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import IntegrityError, transaction
 from django.db.models import Count
 from rest_framework.exceptions import ValidationError
@@ -12,7 +13,11 @@ from .models import Enrollment, EnrollmentStatus, Event
 
 def _require_facilitator(user: User) -> AccountProfile:
     profile = AccountProfile.objects.filter(user=user).first()
-    if profile is None or profile.role != AccountRole.FACILITATOR:
+    if (
+        profile is None
+        or profile.role != AccountRole.FACILITATOR
+        or not profile.email_verified
+    ):
         raise ValidationError({"created_by": "Only facilitators may create events."})
     return profile
 
@@ -47,9 +52,30 @@ def create_event(
         capacity=capacity,
         created_by=created_by,
     )
-    event.full_clean()
+    try:
+        event.full_clean()
+    except DjangoValidationError as exc:
+        raise ValidationError(exc.message_dict or exc.messages) from exc
     event.save()
     return event
+
+
+def update_event(*, event: Event, **fields) -> Event:
+    for field_name, value in fields.items():
+        setattr(event, field_name, value)
+    try:
+        event.full_clean()
+    except DjangoValidationError as exc:
+        raise ValidationError(exc.message_dict or exc.messages) from exc
+    event.save()
+    return event
+
+
+def delete_event(*, event: Event, actor: User) -> None:
+    _require_facilitator(actor)
+    if event.created_by_id != actor.pk:
+        raise ValidationError({"created_by": "You may only delete events you created."})
+    event.delete()
 
 
 def _active_enrollment_count_for_update(event_pk: int) -> int:
