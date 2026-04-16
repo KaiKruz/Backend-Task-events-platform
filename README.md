@@ -3,7 +3,12 @@
 A submission-quality Django REST API for an events platform with email OTP verification, JWT auth, role-based access control, event discovery, and enrollments.
 
 ## Status
-Phase 2 auth + OTP implemented (signup, verify-email, JWT login/refresh) on Django’s default `User` with `AccountProfile` + `EmailOTP`.
+Phases 1–3 are implemented:
+
+- **Phase 2:** Auth + OTP (signup, verify-email, JWT login/refresh) on Django’s default `User` with `AccountProfile` + `EmailOTP`.
+- **Phase 3:** `Event` and `Enrollment` models, including a **database-level unique constraint** so a seeker can have only one **active** (`enrolled`) row per event. Model and service behavior (validation, enrollment, capacity, cancellation) is covered by tests under `tests/test_events.py` (pytest).
+
+API endpoints for events and enrollments are planned for Phase 4+; this phase delivers the data layer and service logic tested in isolation.
 
 ## Local setup (Windows / PowerShell)
 
@@ -27,7 +32,7 @@ Environment variables:
 - Copy `.env.example` to `.env` and adjust values for your machine.
 - `DATABASE_URL` should point at PostgreSQL for real usage.
 
-Run:
+Run (validation / local CI-style checks):
 
 ```bash
 python manage.py check
@@ -35,7 +40,10 @@ python manage.py makemigrations
 python manage.py migrate
 pytest
 ruff check .
+python manage.py makemigrations --check
 ```
+
+The `makemigrations --check` step fails if model changes are not reflected in migrations (useful before commits).
 
 Health endpoint:
 
