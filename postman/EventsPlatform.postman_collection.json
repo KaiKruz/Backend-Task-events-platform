@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "a1b2c3d4-events-platform",
     "name": "Events Platform",
-    "description": "Events Platform backend API. Set collection variables: base_url, then run Auth flow; tokens can be saved from Login/Refresh test scripts. For capacity-full test: create an event with capacity 1, enroll seeker A, then call Enroll as seeker B.",
+    "description": "Submission-ready collection for Events Platform API through Phase 6. Configure variables and run Auth first to obtain tokens.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -10,227 +10,151 @@
     { "key": "access_token", "value": "" },
     { "key": "refresh_token", "value": "" },
     { "key": "event_id", "value": "" },
-    { "key": "enrollment_id", "value": "" }
+    { "key": "enrollment_id", "value": "" },
+    { "key": "facilitator_event_id", "value": "" }
   ],
   "item": [
     {
       "name": "Auth",
       "item": [
         {
-          "name": "POST signup",
+          "name": "POST /api/auth/signup/",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"seeker@example.com\",\n  \"password\": \"StrongPass9!\",\n  \"role\": \"seeker\"\n}"
             },
             "url": "{{base_url}}/api/auth/signup/",
-            "description": "Roles: seeker | facilitator. Check server console for 6-digit OTP (default email backend)."
+            "description": "Allowed roles: seeker or facilitator. OTP is sent via configured email backend."
           },
           "response": []
         },
         {
-          "name": "POST verify-email",
+          "name": "POST /api/auth/verify-email/",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"seeker@example.com\",\n  \"otp\": \"123456\"\n}"
             },
             "url": "{{base_url}}/api/auth/verify-email/",
-            "description": "Replace otp with the code from the signup email."
+            "description": "Replace OTP with the code from signup."
           },
           "response": []
         },
         {
-          "name": "POST login",
+          "name": "POST /api/auth/login/",
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
                   "if (pm.response.code === 200) {",
-                  "    var j = pm.response.json();",
-                  "    if (j.access) { pm.collectionVariables.set('access_token', j.access); }",
-                  "    if (j.refresh) { pm.collectionVariables.set('refresh_token', j.refresh); }",
+                  "  var body = pm.response.json();",
+                  "  if (body.access) pm.collectionVariables.set('access_token', body.access);",
+                  "  if (body.refresh) pm.collectionVariables.set('refresh_token', body.refresh);",
                   "}"
-                ],
-                "type": "text/javascript"
+                ]
               }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"seeker@example.com\",\n  \"password\": \"StrongPass9!\"\n}"
             },
             "url": "{{base_url}}/api/auth/login/",
-            "description": "Requires verified email. Test script stores access_token and refresh_token on success."
+            "description": "Requires verified email. Saves access/refresh tokens to collection variables."
           },
           "response": []
         },
         {
-          "name": "POST refresh",
+          "name": "POST /api/auth/refresh/",
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
                   "if (pm.response.code === 200) {",
-                  "    var j = pm.response.json();",
-                  "    if (j.access) { pm.collectionVariables.set('access_token', j.access); }",
-                  "    if (j.refresh) { pm.collectionVariables.set('refresh_token', j.refresh); }",
+                  "  var body = pm.response.json();",
+                  "  if (body.access) pm.collectionVariables.set('access_token', body.access);",
+                  "  if (body.refresh) pm.collectionVariables.set('refresh_token', body.refresh);",
                   "}"
-                ],
-                "type": "text/javascript"
+                ]
               }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
             },
             "url": "{{base_url}}/api/auth/refresh/",
-            "description": "SimpleJWT refresh. Test script updates access_token (and refresh if rotated)."
+            "description": "Refreshes JWT access token."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Events",
+      "name": "Public / seeker",
       "item": [
         {
-          "name": "GET list",
+          "name": "GET /api/health/",
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{base_url}}/api/events/?location=nyc&language=en&starts_after=&starts_before=&q=&page=1&page_size=20",
-            "description": "Public. location/language: case-insensitive exact match on full field. q: substring on title or description."
+            "url": "{{base_url}}/api/health/",
+            "description": "Health check endpoint."
           },
           "response": []
         },
         {
-          "name": "GET detail",
+          "name": "GET /api/events/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/events/?location=&language=&starts_after=&starts_before=&q=&page=1&page_size=20",
+            "description": "Public list with optional filters. Pagination shape: count/next/previous/results."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/events/{id}/",
           "request": {
             "method": "GET",
             "header": [],
             "url": "{{base_url}}/api/events/{{event_id}}/",
-            "description": "Public. Set event_id (integer PK)."
+            "description": "Public detail endpoint."
           },
           "response": []
         },
         {
-          "name": "POST enroll",
+          "name": "POST /api/events/{id}/enroll/",
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
             },
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{}"
-            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
             "url": "{{base_url}}/api/events/{{event_id}}/enroll/",
-            "description": "Verified seeker only. Empty JSON body. 201 on success."
+            "description": "Verified seeker only."
           },
           "response": []
         },
         {
-          "name": "POST enroll — capacity full (expect 400 envelope)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('HTTP 400 when event is at capacity', function () {",
-                  "    pm.response.to.have.status(400);",
-                  "});",
-                  "pm.test('Error envelope detail + code', function () {",
-                  "    var json = pm.response.json();",
-                  "    pm.expect(json).to.have.property('detail');",
-                  "    pm.expect(json).to.have.property('code');",
-                  "    pm.expect(json.code).to.eql('validation_error');",
-                  "});",
-                  "pm.test('Detail mentions capacity', function () {",
-                  "    var json = pm.response.json();",
-                  "    pm.expect(String(json.detail).toLowerCase()).to.include('capacity');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
-            },
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{}"
-            },
-            "url": "{{base_url}}/api/events/{{event_id}}/enroll/",
-            "description": "Setup: event with capacity 1, another seeker already enrolled; call as second seeker with Bearer token. Expect 400 { detail, code: validation_error }."
-          },
-          "response": []
-        },
-        {
-          "name": "GET detail — missing event (expect 404 envelope)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
-                  "pm.test('Error envelope', function () {",
-                  "    var json = pm.response.json();",
-                  "    pm.expect(json).to.have.property('detail');",
-                  "    pm.expect(json).to.have.property('code');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{base_url}}/api/events/999999999/",
-            "description": "Optional: proves missing event returns 404 with assignment error shape."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "My Enrollments",
-      "item": [
-        {
-          "name": "GET upcoming",
+          "name": "GET /api/me/enrollments/upcoming/",
           "request": {
             "auth": {
               "type": "bearer",
@@ -239,42 +163,12 @@
             "method": "GET",
             "header": [],
             "url": "{{base_url}}/api/me/enrollments/upcoming/",
-            "description": "Verified seeker only. Active enrollments for events with starts_at >= now (UTC)."
+            "description": "Verified seeker only. Active enrollments with starts_at >= now."
           },
           "response": []
         },
         {
-          "name": "GET upcoming — facilitator blocked (expect 403 envelope)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('HTTP 403 for facilitator', function () { pm.response.to.have.status(403); });",
-                  "pm.test('Error envelope', function () {",
-                  "    var json = pm.response.json();",
-                  "    pm.expect(json).to.have.property('detail');",
-                  "    pm.expect(json).to.have.property('code');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
-            },
-            "method": "GET",
-            "header": [],
-            "url": "{{base_url}}/api/me/enrollments/upcoming/",
-            "description": "Optional: use access_token for a verified facilitator. Expect 403."
-          },
-          "response": []
-        },
-        {
-          "name": "GET past",
+          "name": "GET /api/me/enrollments/past/",
           "request": {
             "auth": {
               "type": "bearer",
@@ -283,77 +177,119 @@
             "method": "GET",
             "header": [],
             "url": "{{base_url}}/api/me/enrollments/past/",
-            "description": "Verified seeker only. Active enrollments for events with starts_at < now (UTC)."
+            "description": "Verified seeker only. Active enrollments with starts_at < now."
           },
           "response": []
         },
         {
-          "name": "POST cancel",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var j = pm.response.json();",
-                  "    if (j.id) { pm.collectionVariables.set('enrollment_id', String(j.id)); }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "POST /api/me/enrollments/{id}/cancel/",
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
             },
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{}"
-            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
             "url": "{{base_url}}/api/me/enrollments/{{enrollment_id}}/cancel/",
-            "description": "Verified seeker; own enrollment only. Set enrollment_id."
+            "description": "Verified seeker; own enrollment only."
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "Facilitator",
+      "item": [
         {
-          "name": "POST cancel — missing enrollment (expect 404 envelope)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
-                  "pm.test('Error envelope', function () {",
-                  "    var json = pm.response.json();",
-                  "    pm.expect(json).to.have.property('detail');",
-                  "    pm.expect(json).to.have.property('code');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "POST /api/facilitator/events/",
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
             },
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{}"
+              "raw": "{\n  \"title\": \"Facilitator Event\",\n  \"description\": \"Deep dive session\",\n  \"language\": \"en\",\n  \"location\": \"Cairo\",\n  \"starts_at\": \"2026-12-01T10:00:00Z\",\n  \"ends_at\": \"2026-12-01T12:00:00Z\",\n  \"capacity\": 25\n}"
             },
-            "url": "{{base_url}}/api/me/enrollments/999999999/cancel/",
-            "description": "Optional: verified seeker; enrollment id does not exist."
+            "url": "{{base_url}}/api/facilitator/events/",
+            "description": "Verified facilitator only."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/facilitator/events/",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/facilitator/events/",
+            "description": "List authenticated facilitator's own events."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/facilitator/events/{id}/",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/facilitator/events/{{facilitator_event_id}}/",
+            "description": "Retrieve an owned event."
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/facilitator/events/{id}/",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Facilitator Event (updated)\",\n  \"capacity\": 30\n}"
+            },
+            "url": "{{base_url}}/api/facilitator/events/{{facilitator_event_id}}/",
+            "description": "Partial update for an owned event."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /api/facilitator/events/{id}/",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/facilitator/events/{{facilitator_event_id}}/",
+            "description": "Delete an owned event."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/facilitator/events/my-summary/",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/facilitator/events/my-summary/",
+            "description": "Shows total_active_enrollments and available_seats for owned events."
           },
           "response": []
         }

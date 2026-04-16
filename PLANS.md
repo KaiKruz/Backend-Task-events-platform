@@ -6,7 +6,7 @@ Detailed working plans are stored in:
 - `.cursor/plans/django-events-backend-phase1_6f286ef0.plan.md`
 
 ## Current status
-Phases 1–5 are implemented and validation is green (scaffold, auth + OTP, events + enrollments models/services/tests, seeker-facing discovery and enrollment HTTP APIs, facilitator-owned event CRUD + my-summary API).
+Phases 1–6 are complete (scaffold, auth + OTP, events + enrollments models/services/tests, seeker-facing discovery and enrollment HTTP APIs, facilitator-owned event CRUD + my-summary API, and final documentation/submission polish).
 
 ## Current repo structure
 - config/
@@ -22,14 +22,14 @@ Phases 1–5 are implemented and validation is green (scaffold, auth + OTP, even
 3. Phase 3 — Events + Enrollments ✅
 4. Phase 4 — Seeker features ✅
 5. Phase 5 — Facilitator features ✅
-6. Phase 6 — Docs + polish
+6. Phase 6 — Docs + polish ✅
 7. Phase 7 — Bonus
 
 ## Next phase
-Phase 6 — Docs + polish
+Phase 7 — Bonus (optional; out of core assignment scope)
 
 Scope (see detailed plan under `.cursor/plans/`):
-- Final documentation and polish pass for completed core assignment features.
+- Bonus-only work (if chosen), without changing already completed core behavior.
 
 ## Non-negotiables
 - Use Django default User only
